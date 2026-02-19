@@ -1,65 +1,75 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getRecentClips, type Clip } from "@/lib/api";
+import ClipCard from "@/components/ClipCard";
 
 export default function Home() {
+  const [clips, setClips] = useState<Clip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    getRecentClips()
+      .then(setClips)
+      .catch(() => setError("클립을 불러올 수 없습니다."))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div>
+      {/* Hero */}
+      <section className="bg-[#1a1a2e] text-white py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold leading-tight">
+            정치인의 말이 아닌
+            <br />
+            행동을 기록합니다
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4 text-gray-300 text-lg">
+            피선거권자의 영상 클립을 아카이빙하여
+            <br className="hidden sm:block" />
+            시민이 직접 확인하고 판단할 수 있도록 돕습니다.
           </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <a
+              href="/search"
+              className="bg-[#4361ee] px-5 py-2.5 rounded-lg font-medium hover:bg-[#3a56d4] transition-colors"
+            >
+              인물 검색
+            </a>
+            <a
+              href="/upload"
+              className="border border-white/30 px-5 py-2.5 rounded-lg font-medium hover:bg-white/10 transition-colors"
+            >
+              클립 등록
+            </a>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Recent Clips */}
+      <section className="max-w-5xl mx-auto px-4 py-12">
+        <h2 className="text-xl font-bold mb-6">최근 등록된 클립</h2>
+
+        {loading && (
+          <p className="text-center text-gray-400 py-12">불러오는 중...</p>
+        )}
+        {error && (
+          <p className="text-center text-gray-400 py-12">{error}</p>
+        )}
+        {!loading && !error && clips.length === 0 && (
+          <p className="text-center text-gray-400 py-12">
+            아직 등록된 클립이 없습니다.
+          </p>
+        )}
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {clips.map((clip) => (
+            <ClipCard key={clip.id} clip={clip} />
+          ))}
         </div>
-      </main>
+      </section>
     </div>
   );
 }
