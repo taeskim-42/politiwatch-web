@@ -31,25 +31,29 @@ export function login(email: string, password: string) {
 }
 
 // Persons
-export function getPersons(query?: string, electionType?: string) {
+export async function getPersons(query?: string, electionType?: string) {
   const params = new URLSearchParams();
   if (query) params.set("query", query);
   if (electionType) params.set("electionType", electionType);
   const qs = params.toString();
-  return request<Person[]>(`/persons${qs ? `?${qs}` : ""}`);
+  const data = await request<{ persons: Person[] }>(`/persons${qs ? `?${qs}` : ""}`);
+  return data.persons;
 }
 
-export function getPerson(id: string) {
-  return request<Person>(`/persons/${id}`);
+export async function getPerson(id: string) {
+  const data = await request<{ person: Person }>(`/persons/${id}`);
+  return data.person;
 }
 
-export function getPersonClips(id: string) {
-  return request<Clip[]>(`/persons/${id}/clips`);
+export async function getPersonClips(id: string) {
+  const data = await request<{ clips: Clip[] }>(`/persons/${id}/clips`);
+  return data.clips;
 }
 
 // Clips
-export function getRecentClips() {
-  return request<Clip[]>("/clips");
+export async function getRecentClips() {
+  const data = await request<{ clips: Clip[] }>("/clips");
+  return data.clips;
 }
 
 export function createClip(
